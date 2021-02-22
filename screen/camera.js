@@ -1,0 +1,78 @@
+import React, { useState, useEffect } from 'react';
+import { Text, View, StyleSheet, Button } from 'react-native';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import axios from 'axios'
+
+export default function App() {
+  const [hasPermission, setHasPermission] = useState(null);
+  const [scanned, setScanned] = useState(false);
+  // const [qrcodeData, setqrcodeData] = useState({
+  //   qrdata: "",
+  // })
+
+  async function camera(data) {
+
+
+    try {
+      await axios.post('https://radiant-basin-59716.herokuapp.com/camera', {
+        data
+      })
+      Alert.alert(" เรียบร้อย ")
+
+    } catch (error) {
+      Alert.alert(" ไม่เรียบร้อย ")
+    }
+  }
+
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const { status } = await BarCodeScanner.requestPermissionsAsync();
+        setHasPermission(status === 'granted');
+      } catch (error) {
+        Alert.alert(" เชื่อมต่อกับกล้องไม่ได้ ")
+      }
+    })();
+
+  }, []);
+
+  const handleBarCodeScanned = async ({ type, data }) => {
+    setScanned(true);
+    alert(`Bar code  data ${data} has been scanned!`);
+    try {
+      await camera(data);
+    } catch (error) {
+      Alert.alert(" ส่งข้อมูลไม่ได้ ")
+    }
+
+    // setqrcodeData({ ...qrcodeData, qrdata: data });
+
+  };
+
+  if (hasPermission === null) {
+    return <Text>Requesting for camera permission</Text>;
+  }
+  if (hasPermission === false) {
+    return <Text>No access to camera</Text>;
+  }
+
+
+  return (
+    <View style={styles.container}>
+      <BarCodeScanner
+        onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+        style={StyleSheet.absoluteFillObject}
+      />
+      {scanned && <Button title={'Tap to Scan Again'} onPress={() => setScanned(false)} />}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+  },
+});
