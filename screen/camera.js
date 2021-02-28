@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useContext} from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
+import {UserContext} from '../App'
 
 export default function App() {
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  // const [qrcodeData, setqrcodeData] = useState({
-  //   qrdata: "",
-  // })
-
+  const {userData,setUserData} = useContext(UserContext)
+  const  User_Name = userData.User_Name
+  
   async function camera(data) {
-
-
+    
     try {
       await axios.post('https://radiant-basin-59716.herokuapp.com/camera', {
-        data
+        data,User_Name
       })
       Alert.alert(" เรียบร้อย ")
 
@@ -39,14 +38,9 @@ export default function App() {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
-    alert(`Bar code  data ${data} has been scanned!`);
-    try {
-      await camera(data);
-    } catch (error) {
-      Alert.alert(" ส่งข้อมูลไม่ได้ ")
-    }
-
-    // setqrcodeData({ ...qrcodeData, qrdata: data });
+    camera(data);
+    alert(`สแกนคิวอาร์โค้ดสำเร็จแล้ว `);
+    
 
   };
 

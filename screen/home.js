@@ -1,30 +1,21 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState ,useContext } from 'react';
 import { ScrollView, View, Image, StyleSheet, Alert, Text, Linking, Button } from 'react-native';
 import { DismissKeyboard } from '../components/DismissKeyboard';
-import {Nloging} from './index';
+import { Nloging } from './index';
+import {UserContext} from '../App'
 
-export default (props) => {
-  const {
-    navigation: {navigate},
-  } = props;
+export default ({navigation}) => {
+  const {userData,setUserData} = useContext(UserContext)
+  
   const Separator = () => (
     <View style={styles.separator} />
   );
-  const [userData,setUserData] = useState(null)
 
-  useEffect(() => {
-    async function gogo() {
-      const send = await axios.get('https://radiant-basin-59716.herokuapp.com/getuser?User_Name=เฟมคนน่ารัก')
-      setUserData(send.data)
-    }
-    gogo()
-    
-  }, [])
 
   return (
     <DismissKeyboard>
- 
+
       <ScrollView style={{ backgroundColor: '#ffdead' }}>
 
         <View style={{ backgroundColor: '#a52a2a', paddingTop: 50, paddingBottom: 30 }}>
@@ -35,30 +26,33 @@ export default (props) => {
                 source={require('../assets/fame.jpg')} />
             </View>
             <View style={{ justifyContent: 'center', paddingLeft: 20 }}>
-            <View style={{flexDirection: 'row'}}>
-            {userData ? (
-               <>
-              <Text style={styles.Name}> {userData.Name} </Text>
-               </>
-                ): null}
-            {userData ? (
-               <>
-              <Text style={styles.Name}> {userData.LastName} </Text>
-               </>
-                ): null}    
-            </View>
-            <View style={{ paddingLeft:20,paddingRight:20, paddingTop:10}}>
-            <View style={{backgroundColor: '#808080', paddingTop: 2, paddingBottom: 2,}}>
-             <Button 
-              title="ออกจากระบบ"
-              text="ออกจารระบบ"
-              color="#ffffff"
-              fontSize= {5}
-             rounded
-              onPress={() => navigate('camera')}
-        />
-        </View>  
-        </View>
+              <View style={{ flexDirection: 'row' }}>
+                {userData ? (
+                  <>
+                    <Text style={styles.Name}> {userData.Name} </Text>
+                  </>
+                ) : null}
+                {userData ? (
+                  <>
+                    <Text style={styles.Name}> {userData.LastName} </Text>
+                  </>
+                ) : null}
+              </View>
+              <View style={{ paddingLeft: 20, paddingRight: 20, paddingTop: 10 }}>
+                <View style={{ backgroundColor: '#808080', paddingTop: 2, paddingBottom: 2, }}>
+                  <Button
+                    title="ออกจากระบบ"
+                    text="ออกจารระบบ"
+                    color="#ffffff"
+                    fontSize={5}
+                    rounded
+                    onPress={() => {
+                      setUserData(null)
+                      navigation.dangerouslyGetParent().navigate('Login') 
+                    }}
+                  />
+                </View>
+              </View>
             </View>
           </View>
 
@@ -67,7 +61,7 @@ export default (props) => {
         <View style={styles.NewsView}>
           <View style={styles.NewsView2}>
             <Text style={{ color: '#fdf5e6' }}>
-            ข่าวสาร
+              ข่าวสาร
                 </Text>
           </View>
         </View>
@@ -81,7 +75,7 @@ export default (props) => {
             onPress={() => {
               Linking.openURL('https://www.thairath.co.th/news/local/bangkok/1802814');
             }}>
-            คลิ๊กที่นี้!!
+            คลิ๊กที่นี่!!
             </Text>
 
         </View>
@@ -97,7 +91,7 @@ export default (props) => {
             onPress={() => {
               Linking.openURL('https://www.thairath.co.th/news/politic/2014745');
             }}>
-            คลิ๊กที่นี้!!
+            คลิ๊กที่นี่!!
             </Text>
 
         </View>

@@ -43,12 +43,12 @@ export default (props) => {
       try {
         await axios.post('https://radiant-basin-59716.herokuapp.com/register', {...registerData,ID_Card_No:parseInt(ID_Card_No)} )
         Alert.alert (" เรียบร้อย ")
-        navigate('Tab',{screen: "home "})
+        navigate('Login')
       } catch (error) {
         Alert.alert (" ไม่เรียบร้อย ")
       }
     }else{
-      Alert.alert (" กรอกไม่ครบนะ ")
+      Alert.alert (" กรอกไม่ครบ ")
     }
   }
   return (

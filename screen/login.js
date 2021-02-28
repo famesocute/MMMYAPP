@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { useContext ,useState} from 'react';
 import {ScrollView, View, Image, StyleSheet, Alert, Text, TextInput, KeyboardAvoidingView, Button} from 'react-native';
 import {DismissKeyboard} from '../components/DismissKeyboard';
 import axios from 'axios'
-import { useState } from 'react';
 
+import {UserContext} from '../App'
 
 export default (props) => {
   const {
     navigation: {navigate},
   } = props;
-  const [value, onChangeText] = React.useState('Useless Placeholder');
+  const [value, onChangeText] = useState('Useless Placeholder');
+  const { setUserData} = useContext(UserContext)
   const Separator = () => (
     <View style={styles.separator} />); 
   const [loginData, setloginData] = useState({
@@ -22,13 +23,15 @@ export default (props) => {
     if (User_Name !== "" && Password !== "" ){  
       
       try{
-        await axios.post('https://radiant-basin-59716.herokuapp.com/login',loginData)
-        navigate('Tab',{screen: "home "})
+        const response = await axios.post('https://radiant-basin-59716.herokuapp.com/login',loginData)
+        setUserData(response.data)
+        navigate('Tab',{screen: "home" })
        
       } catch (error) {
-        Alert.alert ("ไม่เรียบร้อย")
+        Alert.alert ("ผู้ใช้หรือรหัสผิด กรุณาตรวจสอบ")
       }
     }
+    
   }
   
   return (
