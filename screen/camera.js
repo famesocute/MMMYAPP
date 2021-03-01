@@ -1,22 +1,36 @@
-import React, { useState, useEffect ,useContext} from 'react';
-import { Text, View, StyleSheet, Button } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { Text, View, StyleSheet, Button, Alert } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios'
-import {UserContext} from '../App'
+import { UserContext } from '../App'
+import { QRContext } from '.';
 
-export default function App() {
+export default function App(props) {
+  const {
+    navigation: { navigate },
+  } = props;
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
-  const {userData,setUserData} = useContext(UserContext)
-  const  User_Name = userData.User_Name
-  
+  const { userData } = useContext(UserContext)
+  const { entranceData, setEntrance } = useContext(QRContext)
+  const { User_Name } = userData
+
   async function camera(data) {
-    
+
     try {
-      await axios.post('https://radiant-basin-59716.herokuapp.com/camera', {
-        data,User_Name
+      const checkin = await axios.post('https://radiant-basin-59716.herokuapp.com/camera', {
+        User_Name, data
       })
-      Alert.alert(" เรียบร้อย ")
+      const myCheckin = {
+        ...checkin.data,
+        time: {
+          seconds: new Date(checkin.data.time).getTime() / 1000,
+          nanoseconds: new Date(checkin.data.time).getTime() * Math.pow(10, 6)
+        }
+      }
+      setEntrance([...entranceData, myCheckin])
+      Alert.alert("เรียบร้อย ")
+      navigate('notification')
 
     } catch (error) {
       Alert.alert(" ไม่เรียบร้อย ")
@@ -38,9 +52,7 @@ export default function App() {
 
   const handleBarCodeScanned = async ({ type, data }) => {
     setScanned(true);
-    camera(data);
-    alert(`สแกนคิวอาร์โค้ดสำเร็จแล้ว `);
-    
+    await camera(data);
 
   };
 

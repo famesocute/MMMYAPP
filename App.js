@@ -13,12 +13,13 @@ export const UserContext = createContext({})
 
 export default () => {
   const [userData, setUserData] = useState(null)
+  
   return (
     <NavigationContainer>
       <UserContext.Provider value={
         {
           userData,
-          setUserData
+          setUserData,
         }
       }>
         <Stack.Navigator>

@@ -1,121 +1,118 @@
 import * as React from 'react';
-import { View, Image, StyleSheet, Text, ScrollView , Button} from 'react-native';
+import { View, Image, StyleSheet, Text, ScrollView, Button, Alert } from 'react-native';
 import { Avatar, Card, Title, Paragraph } from 'react-native-paper';
 import axios from 'axios';
 import { useEffect, useState, useContext } from 'react';
-import {UserContext} from '../App'
+import { UserContext } from '../App'
+import { QRContext } from '.';
 
+function getTime(time) {
+  let hr = (new Date(time).getHours() + 24) % 24;
+  let mins = new Date(time).getMinutes();
+  let displayMin = mins.toString();
+  if (mins < 10) {
+    displayMin = '0' + mins.toString();
+  }
+
+  if (hr === 0) {
+    hr = 24;
+  } else if (hr > 24) {
+    hr %= 24;
+  }
+  return hr + ':' + displayMin + ' ';
+}
 
 export default (props) => {
   const Separator = () => (
     <View style={styles.separator} />
   );
-  const {userData,setUserData} = useContext(UserContext)
-  const  User_Name = userData.User_Name
-  const axios = require('axios');
-  const [Data, setData] = useState(null);
+  const { userData } = useContext(UserContext)
+  const { User_Name } = userData
+  const { entranceData, setEntrance } = useContext(QRContext)
+
 
   async function out() {
-   
+
     try {
-      await axios.post('https://radiant-basin-59716.herokuapp.com/logout', {
+      const checkout = await axios.post('https://radiant-basin-59716.herokuapp.com/logout', {
         User_Name
       })
-      Alert.alert(" เรียบร้อย ")
+      const myCheckout = {
+        ...checkout.data,
+        time: {
+          seconds: new Date(checkout.data.time).getTime() / 1000,
+          nanoseconds: new Date(checkout.data.time).getTime() * Math.pow(10, 6)
+        }
+      }
+      setEntrance([...entranceData, myCheckout])
+      Alert.alert("เรียบร้อย ")
 
     } catch (error) {
       Alert.alert(" ไม่เรียบร้อย ")
     }
-  }   
-  
-  async function get(){
-    const GetData = await axios.get('https://radiant-basin-59716.herokuapp.com/getlogout?User_Name=j')
-    setData = GetData.data
   }
- 
- 
+
+
+
+  useEffect(() => {
+    async function get() {
+      try {
+        const checkin = await axios.get('https://radiant-basin-59716.herokuapp.com/getdata', { params: { User_Name } })
+        const checkout = await axios.get('https://radiant-basin-59716.herokuapp.com/getlogout', { params: { User_Name } })
+
+        setEntrance([...checkin.data, ...checkout.data])
+      } catch (error) {
+        alert(error.message)
+      }
+    }
+    get()
+  }, [])
+
+
   return (
     <ScrollView>
-    <View style={{paddingTop: 70,paddingBottom:70 ,alignItems: 'center', backgroundColor: '#a52a2a'}}>
-    <View style={{backgroundColor: '#000000', paddingBottom: 5, paddingTop: 5 ,paddingLeft: 5, paddingRight: 5}}>
-    <Button 
-        title="ออกจากสถานที่"
-        text="ออกจากสถานที่"
-        color="#fdf5e6"
-        rounded
-        onPress={out}
-        />
-    </View>
-    </View>
-    <Text>
-      {Data}
-    </Text>
-    <View>
-    <Card> 
-  <Card.Actions>
-      <Card.Cover style={{width: 100, height: 100, borderRadius: 100 }} 
-      source={require('../assets/3.png')}/>
-      <Text style={{paddingLeft: 20 , fontSize: 18}}> {Data.gate} </Text>
-    </Card.Actions>
-    
-    <Card.Actions>
-      <Text style={{paddingLeft: 60 }}> 09 : 30 น. </Text>
-      <Text style={{paddingLeft: 120 }}> 36.8 องศา </Text>
-    </Card.Actions>
-    
-  </Card>
+      <View style={{ paddingTop: 70, paddingBottom: 70, alignItems: 'center', backgroundColor: '#a52a2a' }}>
+        <View style={{ backgroundColor: '#000000', paddingBottom: 5, paddingTop: 5, paddingLeft: 5, paddingRight: 5 }}>
+          <Button
+            title="ออกจากสถานที่"
+            text="ออกจากสถานที่"
+            color="#fdf5e6"
+            rounded
+            onPress={() => out()}
+          />
+        </View>
+      </View>
+      <Text>
 
-  <Separator />
+      </Text>
 
-  <Card> 
-  <Card.Actions>
-      <Card.Cover style={{width: 100, height: 100, borderRadius: 100 }} 
-      source={require('../assets/3.png')}/>
-      <Text style={{paddingLeft: 20 , fontSize: 18}}> คณะวิศวกรรมภาคไฟฟ้า </Text>
-    </Card.Actions>
-    
-    <Card.Actions>
-      <Text style={{paddingLeft: 60 }}> 09 : 30 น. </Text>
-      <Text style={{paddingLeft: 120 }}> 36.8 องศา </Text>
-    </Card.Actions>
-    
-  </Card>
+      <View>
+        {entranceData.slice(0).sort((a, b) => {
+          return b.time.seconds - a.time.seconds
+        }).map((item,i) => {
+          return (
+            <View key={i.toString()}>
+              <Card>
+                <Card.Actions>
+                  <Card.Cover style={{ width: 100, height: 100, borderRadius: 100 }}
+                    source={require('../assets/3.png')} />
+                  <Text style={{ paddingLeft: 20, fontSize: 18 }}>{item.gate}</Text>
+                </Card.Actions>
 
-  
-  <Separator />
+                <Card.Actions>
+                  <Text style={{ paddingLeft: 60 }}> {getTime(item.time.seconds * 1000)} น. </Text>
+                  {item.data ? (<Text style={{ paddingLeft: 120 }}> {item.data} องศา </Text>) : null}
+                </Card.Actions>
+              </Card>
+              <Separator />
+            </View>
+          )
+        })}
 
-  <Card> 
-  <Card.Actions>
-      <Card.Cover style={{width: 100, height: 100, borderRadius: 100 }} 
-      source={require('../assets/3.png')}/>
-      <Text style={{paddingLeft: 20 , fontSize: 18}}> คณะวิศวกรรมภาคไฟฟ้า </Text>
-    </Card.Actions>
-    
-    <Card.Actions>
-      <Text style={{paddingLeft: 60 }}> 09 : 30 น. </Text>
-      <Text style={{paddingLeft: 120 }}> 36.8 องศา </Text>
-    </Card.Actions>
-    
-  </Card>
-  
-  <Separator />
 
-  <Card> 
-  <Card.Actions>
-      <Card.Cover style={{width: 100, height: 100, borderRadius: 100 }} 
-      source={require('../assets/3.png')}/>
-      <Text style={{paddingLeft: 20 , fontSize: 18}}> คณะวิศวกรรมภาคไฟฟ้า </Text>
-    </Card.Actions>
-    
-    <Card.Actions>
-      <Text style={{paddingLeft: 60 }}> 09 : 30 น. </Text>
-      <Text style={{paddingLeft: 120 }}> 36.8 องศา </Text>
-    </Card.Actions>
-    
-  </Card>
-  </View>
-   </ScrollView>
-    );
+      </View>
+    </ScrollView>
+  );
 };
 
 const styles = StyleSheet.create({

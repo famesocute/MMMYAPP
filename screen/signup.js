@@ -194,6 +194,7 @@ export default (props) => {
 
                 <Text style={styles.TitleText}> ปี</Text>
               </View>
+              <View style= {{flexDirection: 'column'}}>
               <TextInput style={styles.TextInput2}
                 onChangeText={text => {
            
@@ -201,6 +202,10 @@ export default (props) => {
                   setBD()
                 }}
                 value={YData} />
+                <Text style={styles.explain2}>
+                     ex. ปี พ.ศ.
+                </Text> 
+                </View>
             </View>
 
           </View>

@@ -28,7 +28,7 @@ export default (props) => {
         navigate('Tab',{screen: "home" })
        
       } catch (error) {
-        Alert.alert ("ผู้ใช้หรือรหัสผิด กรุณาตรวจสอบ")
+        Alert.alert(error.message)
       }
     }
     
