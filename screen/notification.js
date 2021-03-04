@@ -6,6 +6,14 @@ import { useEffect, useState, useContext } from 'react';
 import { UserContext } from '../App'
 import { QRContext } from '.';
 
+function getFullDate(time) {
+  let day = new Date(time).getDate();
+  let month = new Date(time).getMonth() + 1;
+  let year = new Date(time).getFullYear();
+
+  return `${day}-${month < 10 ? '0' + month.toString() : month}-${year}`;
+}
+
 function getTime(time) {
   let hr = (new Date(time).getHours() + 24) % 24;
   let mins = new Date(time).getMinutes();
@@ -34,7 +42,7 @@ export default (props) => {
   async function out() {
 
     try {
-      const checkout = await axios.post('https://radiant-basin-59716.herokuapp.com/logout', {
+      const checkout = await axios.post('https://radiant-basin-59716.herokuapp.com/timeout', {
         User_Name
       })
       const myCheckout = {
@@ -58,7 +66,7 @@ export default (props) => {
     async function get() {
       try {
         const checkin = await axios.get('https://radiant-basin-59716.herokuapp.com/getdata', { params: { User_Name } })
-        const checkout = await axios.get('https://radiant-basin-59716.herokuapp.com/getlogout', { params: { User_Name } })
+        const checkout = await axios.get('https://radiant-basin-59716.herokuapp.com/gettimeout', { params: { User_Name } })
 
         setEntrance([...checkin.data, ...checkout.data])
       } catch (error) {
@@ -82,10 +90,6 @@ export default (props) => {
           />
         </View>
       </View>
-      <Text>
-
-      </Text>
-
       <View>
         {entranceData.slice(0).sort((a, b) => {
           return b.time.seconds - a.time.seconds
@@ -96,12 +100,13 @@ export default (props) => {
                 <Card.Actions>
                   <Card.Cover style={{ width: 100, height: 100, borderRadius: 100 }}
                     source={require('../assets/3.png')} />
-                  <Text style={{ paddingLeft: 20, fontSize: 18 }}>{item.gate}</Text>
+                  <Text style={{ paddingLeft: 5, fontSize: 18 }}>{item.gate}</Text>
                 </Card.Actions>
 
                 <Card.Actions>
-                  <Text style={{ paddingLeft: 60 }}> {getTime(item.time.seconds * 1000)} น. </Text>
-                  {item.data ? (<Text style={{ paddingLeft: 120 }}> {item.data} องศา </Text>) : null}
+                  <Text style={{paddingLeft: 30}}> {getFullDate(item.time.seconds * 1000 )}</Text> 
+                  <Text style={{ paddingLeft: 30 }}> {getTime(item.time.seconds * 1000)} น. </Text>
+                  {item.data ? (<Text style={{ paddingLeft: 60 }}> {item.data} องศา </Text>) : null}
                 </Card.Actions>
               </Card>
               <Separator />

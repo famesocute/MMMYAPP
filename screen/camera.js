@@ -15,9 +15,11 @@ export default function App(props) {
   const { entranceData, setEntrance } = useContext(QRContext)
   const { User_Name } = userData
 
+
   async function camera(data) {
 
     try {
+      data = await data - 100;
       const checkin = await axios.post('https://radiant-basin-59716.herokuapp.com/camera', {
         User_Name, data
       })
@@ -29,7 +31,7 @@ export default function App(props) {
         }
       }
       setEntrance([...entranceData, myCheckin])
-      Alert.alert("เรียบร้อย ")
+      Alert.alert("ทำการสแกนเรียบร้อย")
       navigate('notification')
 
     } catch (error) {
